@@ -57,3 +57,13 @@ fun readNextChar(prompt: String = ""): Char {
     }
 }
 
+fun readNextBoolean(prompt: String = ""): Boolean {
+    print(prompt)
+    return when (readlnOrNull()?.lowercase()) {
+        "y", "yes", "true" -> true
+        else -> false
+    }
+}
+
+
+
