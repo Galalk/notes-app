@@ -9,3 +9,6 @@ Features include:
 - Update note
 - List all notes
 - Delete Notes
+- Count all notes in given category
+
+
