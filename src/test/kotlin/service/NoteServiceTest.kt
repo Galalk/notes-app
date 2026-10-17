@@ -61,7 +61,6 @@ class NoteServiceTest {
             emptyNoteService.addNote(note1)
 
             val retrievedNote = emptyNoteService.getNotes().first()
-            // Note: other functions test isArchived and id
             assertEquals(note1.title, retrievedNote.title)
             assertEquals(note1.body, retrievedNote.body)
             assertEquals(note1.priority, retrievedNote.priority)
