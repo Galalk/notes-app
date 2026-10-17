@@ -36,8 +36,69 @@ class NoteService {
         return notes.find { it.id == id }
     }
 
+    fun numberOfNotes(): Int {
+        return notes.size
+    }
+
+    fun numberOfArchivedNotes(): Int {
+        var count = 0
+
+        for (note in notes) {
+            if (note.isArchived) {
+                count++
+            }
+        }
+
+        return count
+    }
+
+    fun numberOfActiveNotes(): Int {
+        var count = 0
+
+        for (note in notes) {
+            if (!note.isArchived) {
+                count++
+            }
+        }
+
+        return count
+    }
+
+    fun numberOfNotesByCategory(category: String): Int {
+        var count = 0
+
+        for (note in notes) {
+            if (note.category == category) {
+                count++
+            }
+        }
+
+        return count
+    }
+
+    fun numberOfNotesByPriority(priority: Int): Int {
+        var count = 0
+
+        for (note in notes) {
+            if (note.priority == priority) {
+                count++
+            }
+        }
+        return count
+    }
+
+    fun archiveNote(id: Int): Boolean {
+        for (note in notes) {
+            if (note.id == id && !note.isArchived) {
+                note.isArchived = true
+                return true
+            }
+        }
+        return false
+    }
 
 }
+
 
 
 
