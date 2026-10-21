@@ -6,6 +6,7 @@ import model.Note
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
+import persistence.JSONSerializer
 import persistence.XMLSerializer
 import java.io.File
 
@@ -432,4 +433,79 @@ class NoteServiceTest {
             assertEquals(0, populatedNoteService.numberOfNotesByPriority(99))
         }
     }
+
+    @Nested
+    inner class PersistenceTests {
+
+        @Test
+        fun `saving and loading an empty collection in XML doesn't crash app`() {
+            // Saving an empty notes.XML file.
+            val storingNotes = NoteService(XMLSerializer(File("notes.xml")))
+            storingNotes.store()
+
+            //Loading the empty notes.xml file into a new object
+            val loadedNotes = NoteService(XMLSerializer(File("notes.xml")))
+            loadedNotes.load()
+
+            //Comparing the source of the notes (storingNotes) with the XML loaded notes (loadedNotes)
+            assertEquals(0, storingNotes.numberOfNotes())
+            assertEquals(0, loadedNotes.numberOfNotes())
+            assertEquals(storingNotes.numberOfNotes(), loadedNotes.numberOfNotes())
+        }
+
+        @Test
+        fun `saving notes to XML and then loading them doesn't loose data`() {
+            // Storing 3 notes to the notes.XML file.
+            val storingNotes = NoteService(XMLSerializer(File("notes.xml")))
+            storingNotes.addNote(note1)
+            storingNotes.addNote(note2)
+            storingNotes.addNote(note3)
+            storingNotes.store()
+
+            //Loading notes.xml into a different collection
+            val loadedNotes = NoteService(XMLSerializer(File("notes.xml")))
+            loadedNotes.load()
+
+            //Comparing the source of the notes (storingNotes) with the XML loaded notes (loadedNotes)
+            assertEquals(3, storingNotes.numberOfNotes())
+            assertEquals(3, loadedNotes.numberOfNotes())
+            assertEquals(storingNotes.numberOfNotes(), loadedNotes.numberOfNotes())
+            assertEquals(storingNotes.findNoteById(0), loadedNotes.findNoteById(0))
+            assertEquals(storingNotes.findNoteById(1), loadedNotes.findNoteById(1))
+            assertEquals(storingNotes.findNoteById(2), loadedNotes.findNoteById(2))
+        }
+
+        @Test
+        fun `saving and loading an empty collection in JSON doesn't crash app`() {
+            val storingNotes = NoteService(JSONSerializer(File("notes.json")))
+            storingNotes.store()
+
+            val loadedNotes = NoteService(JSONSerializer(File("notes.json")))
+            loadedNotes.load()
+
+            assertEquals(0, storingNotes.numberOfNotes())
+            assertEquals(0, loadedNotes.numberOfNotes())
+            assertEquals(storingNotes.numberOfNotes(), loadedNotes.numberOfNotes())
+        }
+
+        @Test
+        fun `saving notes to JSON and then loading them doesn't loose data`() {
+            val storingNotes = NoteService(JSONSerializer(File("notes.json")))
+            storingNotes.addNote(note1)
+            storingNotes.addNote(note2)
+            storingNotes.addNote(note3)
+            storingNotes.store()
+
+            val loadedNotes = NoteService(JSONSerializer(File("notes.json")))
+            loadedNotes.load()
+
+            assertEquals(3, storingNotes.numberOfNotes())
+            assertEquals(3, loadedNotes.numberOfNotes())
+            assertEquals(storingNotes.numberOfNotes(), loadedNotes.numberOfNotes())
+            assertEquals(storingNotes.findNoteById(0), loadedNotes.findNoteById(0))
+            assertEquals(storingNotes.findNoteById(1), loadedNotes.findNoteById(1))
+            assertEquals(storingNotes.findNoteById(2), loadedNotes.findNoteById(2))
+        }
+    }
+
 }
