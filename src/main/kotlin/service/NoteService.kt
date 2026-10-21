@@ -97,6 +97,19 @@ class NoteService {
         return false
     }
 
+    fun getActiveNotes(): List<Note> {
+        val result = ArrayList<Note>()
+
+        for (note in notes) {
+            if (!note.isArchived) {
+                result.add(note)
+            }
+        }
+
+        return result
+    }
+
+
 }
 
 
