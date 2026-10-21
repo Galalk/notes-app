@@ -29,6 +29,7 @@ fun mainMenu(): Int {
          > |   2) List all notes            |
          > |   3) Update a note             |
          > |   4) Delete a note             |
+         > |   5) Archive a note            |
          > ----------------------------------
          > |   20) Save                     |
          > |   21) Load                     |
@@ -48,6 +49,7 @@ fun runMenu (){
             2 -> listNotes()
             3 -> updateNote()
             4 -> deleteNote()
+            5 -> archiveNote()
             20 -> save()
             21 -> load()
             0 ->  {
@@ -103,6 +105,15 @@ fun updateNote() {
     } else {
         println("Not found")
     }
+}
+
+fun archiveNote(){
+    noteService.getActiveNotes().forEach { println(it) }
+    val id = readNextInt("Enter ID of Note to be Archived: ")
+    if (noteService.archiveNote(id))
+        println("Archived")
+    else
+        println("Not found")
 }
 
 fun save() {
