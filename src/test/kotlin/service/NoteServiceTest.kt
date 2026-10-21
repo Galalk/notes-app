@@ -506,6 +506,31 @@ class NoteServiceTest {
             assertEquals(storingNotes.findNoteById(1), loadedNotes.findNoteById(1))
             assertEquals(storingNotes.findNoteById(2), loadedNotes.findNoteById(2))
         }
+
+
+        @Test
+        fun `adding a note after loading preserves unique IDs`() {
+            val file = File("test-notes.json")
+            val storingNotes = NoteService(JSONSerializer(file))
+
+            storingNotes.addNote(Note(0, "First", "Body 1", 1, "Work", false))
+            storingNotes.addNote(Note(0, "Second", "Body 2", 2, "Home", false))
+            storingNotes.store()
+
+            val loadedNotes = NoteService(JSONSerializer(file))
+            loadedNotes.load()
+
+            loadedNotes.addNote(
+                Note(0, "Third", "Body 3", 3, "College", false)
+            )
+
+            assertEquals(3, loadedNotes.numberOfNotes())
+            assertEquals(2, loadedNotes.findNoteById(2)?.id)
+            assertEquals("Third", loadedNotes.findNoteById(2)?.title)
+
+            file.delete()
+        }
+
     }
 
 }
