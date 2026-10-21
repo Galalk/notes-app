@@ -158,7 +158,6 @@ class NoteService(serializerType: Serializer) {
         serializer.write(notes)
     }
 
-
 }
 
 
