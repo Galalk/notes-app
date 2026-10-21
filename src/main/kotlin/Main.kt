@@ -1,5 +1,6 @@
 import io.github.oshai.kotlinlogging.KotlinLogging
 import model.Note
+import persistence.JSONSerializer
 import persistence.XMLSerializer
 import service.NoteService
 import utils.readNextBoolean
@@ -7,8 +8,8 @@ import utils.readNextInt
 import utils.readNextLine
 import java.io.File
 
-val noteService = NoteService(XMLSerializer(File("notes.xml")))
-
+//val noteService = NoteService(XMLSerializer(File("notes.xml")))
+val noteService = NoteService(JSONSerializer(File("notes.json")))
 
 private val logger = KotlinLogging.logger {}
 
