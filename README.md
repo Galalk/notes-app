@@ -10,5 +10,8 @@ Features include:
 - List all notes
 - Delete Notes
 - Count all notes in given category
+- Archive notes
+- Save
+- Load
 
 
