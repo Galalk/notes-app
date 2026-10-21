@@ -6,6 +6,8 @@ import model.Note
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
+import persistence.XMLSerializer
+import java.io.File
 
 
 class NoteServiceTest {
@@ -24,8 +26,8 @@ class NoteServiceTest {
         note3 = Note(0, "Test3", "Body3", 3, "College", false)
         note4 = Note(0, "Test4", "Body4", 4, "Social", true)
 
-        emptyNoteService = NoteService()
-        populatedNoteService = NoteService()
+        emptyNoteService = NoteService(XMLSerializer(File("notes.xml")))
+        populatedNoteService = NoteService(XMLSerializer(File("empty-notes.xml")))
 
         populatedNoteService.addNote(note1)
         populatedNoteService.addNote(note2)

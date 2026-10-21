@@ -1,11 +1,14 @@
 import io.github.oshai.kotlinlogging.KotlinLogging
 import model.Note
+import persistence.XMLSerializer
 import service.NoteService
 import utils.readNextBoolean
 import utils.readNextInt
 import utils.readNextLine
+import java.io.File
 
-val noteService = NoteService()
+val noteService = NoteService(XMLSerializer(File("notes.xml")))
+
 
 private val logger = KotlinLogging.logger {}
 
@@ -26,6 +29,9 @@ fun mainMenu(): Int {
          > |   3) Update a note             |
          > |   4) Delete a note             |
          > ----------------------------------
+         > |   20) Save                     |
+         > |   21) Load                     |
+         > ----------------------------------    
          > |   0) Exit                      |
          > ----------------------------------
          > """.trimMargin(">"))
@@ -41,6 +47,8 @@ fun runMenu (){
             2 -> listNotes()
             3 -> updateNote()
             4 -> deleteNote()
+            20 -> save()
+            21 -> load()
             0 ->  {
                 println("Exiting App")
                 logger.info { "Notes App Exiting" }
@@ -95,6 +103,23 @@ fun updateNote() {
         println("Not found")
     }
 }
+
+fun save() {
+    try {
+        noteService.store()
+    } catch (e: Exception) {
+        System.err.println("Error writing to file: $e")
+    }
+}
+
+fun load() {
+    try {
+        noteService.load()
+    } catch (e: Exception) {
+        System.err.println("Error reading from file: $e")
+    }
+}
+
 
 
 
