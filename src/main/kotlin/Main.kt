@@ -66,10 +66,9 @@ fun addNote(){
     val body = readNextLine("Body: ")
     val priority = readNextInt("Priority (1-5): ")
     val category = readNextLine("Category: ")
-    val isArchived = readNextBoolean("Is Archived (y/n)")
 
     noteService.addNote(
-        Note(0, title, body, priority, category, isArchived)
+        Note(0, title, body, priority, category, false)
     )
 
     println("Note added")
