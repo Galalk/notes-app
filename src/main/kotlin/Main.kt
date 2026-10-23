@@ -5,8 +5,13 @@ import persistence.JSONSerializer
 import persistence.XMLSerializer
 import service.NoteService
 import utils.readNextBoolean
+import utils.readNextDouble
 import utils.readNextInt
 import utils.readNextLine
+import utils.readValidCategory
+import utils.readValidPriority
+import utils.readValidStatus
+import utils.readValidTags
 import java.io.File
 
 //val noteService = NoteService(XMLSerializer(File("notes.xml")))
@@ -67,11 +72,14 @@ fun runMenu (){
 fun addNote(){
     val title = readNextLine("Title: ")
     val body = readNextLine("Body: ")
-    val priority = readNextInt("Priority (1-5): ")
-    val category = readNextLine("Category: ")
+    val priority = readValidPriority("Priority (1-5): ")
+    val category = readValidCategory("Category \n(Home, College, Exercise, Cooking, Work, Leisure): ")
+    val status = readValidStatus("Status (Todo, Doing, Done): ")
+    val tags = readValidTags("Tags (Separate with commas [,]:")
+    val estimatedTime = readNextDouble("Estimated time (Hours): ")
 
     noteService.addNote(
-        Note(0, title, body, priority, category, false)
+        Note(0, title, body, priority, category, false, status, tags, estimatedTime)
     )
 
     println("Note added")
@@ -144,8 +152,11 @@ fun updateNote() {
     val priority = readNextInt("Priority (1-5): ")
     val category = readNextLine("Category: ")
     val isArchived = readNextBoolean("Is Archived (y/n)")
+    val status = readValidStatus("Status (Todo, Doing, Done): ")
+    val tags = readValidTags("Tags (Separate with commas [,]:")
+    val estimatedTime = readNextDouble("Estimated Time: ")
 
-    val updated = Note(id, title, body, priority, category, isArchived)
+    val updated = Note(id, title, body, priority, category, isArchived, status,tags, estimatedTime)
 
     if (noteService.updateNote(id, updated)) {
         println("Updated")

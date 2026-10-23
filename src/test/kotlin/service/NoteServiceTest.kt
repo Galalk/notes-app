@@ -8,6 +8,11 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import persistence.JSONSerializer
 import persistence.XMLSerializer
+import utils.areValidTags
+import utils.categories
+import utils.isValidCategory
+import utils.isValidStatus
+import utils.validRange
 import java.io.File
 
 
@@ -22,10 +27,10 @@ class NoteServiceTest {
 
     @BeforeEach
     fun setUp() {
-        note1 = Note(0, "Test1", "Body1", 1, "Work", false)
-        note2 = Note(0, "Test2", "Body2", 2, "Home", true)
-        note3 = Note(0, "Test3", "Body3", 3, "College", false)
-        note4 = Note(0, "Test4", "Body4", 4, "Social", true)
+        note1 = Note(0, "Test1", "Body1", 1, "Work", false, "Todo", listOf("urgent", "assignment"), null)
+        note2 = Note(0, "Test2", "Body2", 2, "Home", true, "Doing", listOf("driving", "learn"), null)
+        note3 = Note(0, "Test3", "Body3", 3, "College", false, "Todo", listOf("urgent"), 2.4)
+        note4 = Note(0, "Test4", "Body4", 4, "Social", true, "Done", listOf("relaxing", "walk"), 0.5)
 
         emptyNoteService = NoteService(XMLSerializer(File("notes.xml")))
         populatedNoteService = NoteService(XMLSerializer(File("empty-notes.xml")))
@@ -64,10 +69,14 @@ class NoteServiceTest {
             emptyNoteService.addNote(note1)
 
             val retrievedNote = emptyNoteService.getNotes().first()
+
             assertEquals(note1.title, retrievedNote.title)
             assertEquals(note1.body, retrievedNote.body)
             assertEquals(note1.priority, retrievedNote.priority)
             assertEquals(note1.category, retrievedNote.category)
+            assertEquals(note1.status, retrievedNote.status)
+            assertEquals(note1.tags, retrievedNote.tags)
+            assertEquals(note1.estimatedTime, retrievedNote.estimatedTime)
         }
 
         @Test
@@ -89,6 +98,19 @@ class NoteServiceTest {
             assertEquals(2, populatedNoteService.findNoteById(2)?.id)
             assertEquals(3, populatedNoteService.findNoteById(3)?.id)
         }
+
+        @Test
+        fun `new note has no estimated time by default`() {
+            val note = Note(0, "Test", "Body", 1, "Work", false)
+            assertNull(note.estimatedTime)
+        }
+
+        @Test
+        fun `estimated time can be set`() {
+            note1.estimatedTime = 2.5
+            assertEquals(2.5, note1.estimatedTime)
+        }
+
     }
 
     @Nested
@@ -578,6 +600,14 @@ class NoteServiceTest {
         }
 
         @Test
+        fun `searchNotesByContent returns notes containing search text in tags`() {
+            val result = populatedNoteService.searchNotesByContent("relaxing")
+
+            assertEquals(1, result.size)
+            assertTrue(result.contains(note4))
+        }
+
+        @Test
         fun `searchNotesByContent is case insensitive`() {
             val result = populatedNoteService.searchNotesByContent("test1")
 
@@ -609,11 +639,11 @@ class NoteServiceTest {
         }
 
         @Test
-        fun `searchNotesByContent finds content in either title or body`() {
-            val result = populatedNoteService.searchNotesByContent("Body3")
+        fun `searchNotesByContent finds content in either title or body or tags`() {
+            val result = populatedNoteService.searchNotesByContent("relaxing")
 
             assertEquals(1, result.size)
-            assertTrue(result.contains(note3))
+            assertTrue(result.contains(note4))
         }
 
         @Test
@@ -633,6 +663,101 @@ class NoteServiceTest {
 
             assertEquals(1, result.size)
             assertTrue(result.contains(note3))
+        }
+
+        @Test
+        fun `searchNotesByContent finds partial match in tags`() {
+            val result = populatedNoteService.searchNotesByContent("laxing")
+
+            assertEquals(1, result.size)
+            assertTrue(result.contains(note4))
+        }
+
+    }
+
+    @Nested
+    inner class ValidationTest {
+
+        @Test
+        fun validRangeWorksWithPositiveTestData() {
+            assertTrue(validRange(1, 1, 1))
+            assertTrue(validRange(1, 1, 2))
+            assertTrue(validRange(1, 0, 1))
+            assertTrue(validRange(1, 0, 2))
+            assertTrue(validRange(-1, -2, -1))
+        }
+
+        @Test
+        fun validRangeWorksWithNegativeTestData() {
+            assertFalse(validRange(1, 0, 0))
+            assertFalse(validRange(1, 1, 0))
+            assertFalse(validRange(1, 2, 1))
+            assertFalse(validRange(-1, -1, -2))
+        }
+
+        @Test
+        fun categoriesReturnsFullCategoriesSet() {
+            assertEquals(6, categories.size)
+            assertTrue(categories.contains("Home"))
+            assertTrue(categories.contains("College"))
+            assertTrue(categories.contains("Exercise"))
+            assertTrue(categories.contains("Cooking"))
+            assertTrue(categories.contains("Work"))
+            assertTrue(categories.contains("Leisure"))
+            assertFalse(categories.contains(""))
+        }
+
+        @Test
+        fun isValidCategoryTrueWhenCategoryExists() {
+            assertTrue(isValidCategory("Home"))
+            assertTrue(isValidCategory("home"))
+            assertTrue(isValidCategory("COLLEGE"))
+        }
+
+        @Test
+        fun isValidCategoryFalseWhenCategoryDoesNotExist() {
+            assertFalse(isValidCategory("Hom"))
+            assertFalse(isValidCategory("colllege"))
+            assertFalse(isValidCategory(""))
+        }
+
+        @Test
+        fun `readValidPriority numbers from 1 to 5 are valid`() {
+            assertTrue(validRange(1, 1, 5))
+            assertTrue(validRange(3, 1, 5))
+            assertTrue(validRange(5, 1, 5))
+        }
+
+        @Test
+        fun `readValidPriority numbers outside 1 to 5 are invalid`() {
+            assertFalse(validRange(0, 1, 5))
+            assertFalse(validRange(6, 1, 5))
+        }
+
+        @Test
+        fun `valid statuses are accepted`() {
+            assertTrue(isValidStatus("Todo"))
+            assertTrue(isValidStatus("Doing"))
+            assertTrue(isValidStatus("Done"))
+        }
+
+        @Test
+        fun `invalid statuses are rejected`() {
+            assertFalse(isValidStatus("Waiting"))
+            assertFalse(isValidStatus(""))
+            assertFalse(isValidStatus("Completed"))
+        }
+
+        @Test
+        fun `valid tags are accepted`() {
+            assertTrue(areValidTags(listOf("College", "Gaming")))
+            assertFalse(areValidTags(emptyList()))
+        }
+
+        @Test
+        fun `blank tags are rejected`() {
+            assertFalse(areValidTags(listOf("College", "")))
+            assertFalse(areValidTags(listOf("   ")))
         }
 
     }
