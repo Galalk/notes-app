@@ -39,41 +39,25 @@ class NoteService(serializerType: Serializer) {
         return notes.find { it.id == id }
     }
 
-    fun searchNotesByContent(content: String) = notes
-        .filter { note -> ((note.title.contains(content, ignoreCase = true)
+    fun searchNotesByContent(content: String) =
+        notes.filter { note -> ((note.title.contains(content, ignoreCase = true)
                 || (note.body.contains(content, ignoreCase = true))))}
 
     fun numberOfNotes(): Int {
         return notes.size
     }
 
-    fun numberOfArchivedNotes(): Int {
-      return notes.stream()
-          .filter {note: Note -> note.isArchived}
-          .count()
-          .toInt()
-    }
+    fun numberOfArchivedNotes() =
+        notes.count {note: Note -> note.isArchived}
 
-    fun numberOfActiveNotes(): Int {
-        return notes.stream()
-            .filter { note: Note -> !note.isArchived }
-            .count()
-            .toInt()
-    }
+    fun numberOfActiveNotes() =
+        notes.count {note: Note -> !note.isArchived}
 
-    fun numberOfNotesByCategory(category: String): Int {
-        return notes.stream()
-            .filter { note: Note -> note.category == category }
-            .count()
-            .toInt()
-    }
+    fun numberOfNotesByCategory(category: String) =
+        notes.count { note: Note -> note.category == category }
 
-    fun numberOfNotesByPriority(priority: Int): Int {
-        return notes.stream()
-            .filter {note: Note -> note.priority == priority}
-            .count()
-            .toInt()
-    }
+    fun numberOfNotesByPriority(priority: Int) =
+        notes.count {note: Note -> note.priority == priority}
 
     fun archiveNote(id: Int): Boolean {
         for (note in notes) {
@@ -85,27 +69,17 @@ class NoteService(serializerType: Serializer) {
         return false
     }
 
-    fun getActiveNotes(): List<Note> =
-        notes.stream()
-            .filter { !it.isArchived }
-            .toList()
+    fun getActiveNotes() =
+        notes.filter { !it.isArchived }
 
-    fun getNotesByCategory(category: String): List<Note> =
-        notes.stream()
-            .filter { it.category.equals(category, ignoreCase = true) }
-            .toList()
+    fun getArchivedNotes() =
+        notes.filter { it.isArchived }
 
-    fun getArchivedNotes(): List<Note> =
-        notes.stream()
-            .filter { it.isArchived }
-            .toList()
+    fun getNotesByCategory(category: String) =
+        notes.filter { it.category.equals(category, ignoreCase = true)}
 
-
-    fun getNotesByPriority(priority: Int): List<Note> =
-        notes.stream()
-            .filter { it.priority == priority}
-            .toList()
-
+    fun getNotesByPriority(priority: Int) =
+        notes.filter { it.priority == priority}
 
     fun load() {
         val array = serializer.read(Array<Note>::class.java)
