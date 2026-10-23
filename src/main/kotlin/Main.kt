@@ -19,7 +19,6 @@ fun main(){
     runMenu()
 }
 
-
 fun mainMenu(): Int {
     print(""" 
          > ----------------------------------
@@ -83,6 +82,8 @@ fun listNotes() {
                   > |   1) View ALL notes          |
                   > |   2) View ACTIVE notes       |
                   > |   3) View ARCHIVED notes     |
+                  > |   4) Filter by Category      |
+                  > |   5) Filter by Priority      |
                   > --------------------------------
          > ==>> """.trimMargin(">")
         )
@@ -91,6 +92,27 @@ fun listNotes() {
             1 -> noteService.getNotes().forEach {println(it)}
             2 -> noteService.getActiveNotes().forEach {println(it)}
             3 -> noteService.getArchivedNotes().forEach {println(it)}
+            4 -> {
+                val category = readNextLine("Enter category: ")
+                val matchingNotes = noteService.getNotesByCategory(category)
+
+                if (matchingNotes.isEmpty()) {
+                    println("No notes found in category: $category")
+                } else {
+                    matchingNotes.forEach { println(it) }
+                }
+            }
+            5 -> {
+                val priority = readNextInt("Enter priority (1-5): ")
+                val matchingNotes = noteService.getNotesByPriority(priority)
+
+                if (matchingNotes.isEmpty()) {
+                    println("No notes found with priority: $priority")
+                } else {
+                    matchingNotes.forEach { println(it) }
+                }
+            }
+
             else -> println("Invalid option entered: $option")
         }
     } else {
