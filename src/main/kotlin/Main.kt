@@ -1,3 +1,4 @@
+import com.sun.jndi.toolkit.dir.DirSearch.search
 import io.github.oshai.kotlinlogging.KotlinLogging
 import model.Note
 import persistence.JSONSerializer
@@ -30,6 +31,7 @@ fun mainMenu(): Int {
          > |   3) Update a note             |
          > |   4) Delete a note             |
          > |   5) Archive a note            |
+         > |   6) Search by contents        |
          > ----------------------------------
          > |   20) Save                     |
          > |   21) Load                     |
@@ -50,6 +52,7 @@ fun runMenu (){
             3 -> updateNote()
             4 -> deleteNote()
             5 -> archiveNote()
+            6 -> searchByContent()
             20 -> save()
             21 -> load()
             0 ->  {
@@ -82,8 +85,8 @@ fun listNotes() {
                   > |   1) View ALL notes          |
                   > |   2) View ACTIVE notes       |
                   > |   3) View ARCHIVED notes     |
-                  > |   4) Filter by Category      |
-                  > |   5) Filter by Priority      |
+                  > |   4) Filter by category      |
+                  > |   5) Filter by priority      |
                   > --------------------------------
          > ==>> """.trimMargin(">")
         )
@@ -158,6 +161,20 @@ fun archiveNote(){
         println("Archived")
     else
         println("Not found")
+}
+
+fun searchByContent() {
+    val content = readNextLine("Enter search contents: ")
+
+    if (content != "") {
+        val results = noteService.searchNotesByContent(content)
+
+        if (results.isNotEmpty()) {
+            results.forEach { println(it) }
+        } else {
+            println("No notes found")
+        }
+    }
 }
 
 fun save() {
